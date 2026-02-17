@@ -1,0 +1,44 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is Machine Learning?",
+      "model_answer": "Machine Learning is a subset of Artificial Intelligence that enables systems to learn from data.",
+      "category": "AI/ML",
+      "difficulty": "Easy",
+      "keywords": ["machine learning", "ai", "data", "learn"]
+    },
+    {
+      "id": 2,
+      "question": "Explain Neural Networks.",
+      "model_answer": "Neural Networks are computing systems inspired by biological neural networks that constitute animal brains.",
+      "category": "AI/ML",
+      "difficulty": "Medium",
+      "keywords": ["neural networks", "biological", "brains", "computing"]
+    },
+    {
+      "id": 3,
+      "question": "What is the difference between supervised and unsupervised learning?",
+      "model_answer": "Supervised learning uses labeled data for training, while unsupervised learning finds patterns in unlabeled data.",
+      "category": "AI/ML",
+      "difficulty": "Medium",
+      "keywords": ["supervised", "unsupervised", "labeled", "unlabeled", "training"]
+    },
+    {
+      "id": 4,
+      "question": "Define Overfitting in Machine Learning.",
+      "model_answer": "Overfitting occurs when a model learns the training data too well, including noise and outliers, and performs poorly on new data.",
+      "category": "AI/ML",
+      "difficulty": "Medium",
+      "keywords": ["overfitting", "training", "noise", "outliers", "generalization"]
+    },
+    {
+      "id": 5,
+      "question": "What is a Convolutional Neural Network?",
+      "model_answer": "A Convolutional Neural Network is a deep learning architecture designed to process structured grid data like images using convolutional layers.",
+      "category": "AI/ML",
+      "difficulty": "Hard",
+      "keywords": ["cnn", "convolutional", "deep learning", "images", "layers"]
+    }
+  ]
+}

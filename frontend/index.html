@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Answer Evaluation System</title>
+
+  <style>
+    :root{
+      --bg1:#0f172a;
+      --bg2:#111827;
+      --card:#0b1220cc;
+      --border:#233044;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --btn:#2563eb;
+      --btn2:#1d4ed8;
+    }
+
+    *{ box-sizing: border-box; }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      background: radial-gradient(1200px 700px at 10% 10%, #1f2937 0%, transparent 60%),
+                  radial-gradient(1200px 700px at 90% 20%, #0b3a5b 0%, transparent 55%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      padding: 28px 14px;
+    }
+
+    .container{
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .title{
+      display:flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    .title p{
+      margin:0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .badge{
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #0b1220aa;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      backdrop-filter: blur(8px);
+    }
+
+    .card h2{
+      margin:0 0 10px 0;
+      font-size: 16px;
+    }
+
+    label{
+      display:block;
+      font-size: 13px;
+      color: var(--muted);
+      margin: 10px 0 6px;
+    }
+
+    textarea{
+      width: 100%;
+      min-height: 190px;
+      resize: vertical;
+      padding: 12px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: #0b1220;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    textarea:focus{
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+    }
+
+    .controls{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+
+    .threshold{
+      display:flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    input[type="number"]{
+      width: 110px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--text);
+      outline:none;
+    }
+
+    input[type="number"]:focus{
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59,130,246,0.15);
+    }
+
+    .btns{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button{
+      border: none;
+      border-radius: 14px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.15s ease;
+    }
+
+    .btn-primary{
+      background: linear-gradient(180deg, var(--btn), var(--btn2));
+      color: white;
+    }
+    .btn-primary:hover{ transform: translateY(-1px); }
+    .btn-primary:active{ transform: translateY(0px); }
+
+    .btn-secondary{
+      background: #0b1220;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover{ border-color: #3b82f6; }
+
+    .result{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .resultHeader{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .statusPill{
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+      border: 1px solid var(--border);
+      background: #0b1220;
+      color: var(--muted);
+    }
+
+    .statusPill.pass{
+      border-color: rgba(34,197,94,0.5);
+      color: #86efac;
+      background: rgba(34,197,94,0.10);
+    }
+
+    .statusPill.fail{
+      border-color: rgba(239,68,68,0.55);
+      color: #fca5a5;
+      background: rgba(239,68,68,0.10);
+    }
+
+    .metrics{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px){
+      .metrics{ grid-template-columns: 1fr; }
+    }
+
+    .metric{
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .metric .k{
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric .v{
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .progressWrap{
+      background: #0b1220;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .bar{
+      height: 12px;
+      border-radius: 999px;
+      background: #0f172a;
+      overflow: hidden;
+      border: 1px solid #1f2a3a;
+    }
+
+    .bar > div{
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      transition: width 0.5s ease;
+      background: linear-gradient(90deg, #22c55e, #3b82f6);
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .loading{
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .spinner{
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-top-color: white;
+      display:inline-block;
+      animation: spin 0.7s linear infinite;
+      vertical-align: -2px;
+      margin-right: 8px;
+    }
+
+    @keyframes spin{
+      to { transform: rotate(360deg); }
+    }
+
+    .error{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(239,68,68,0.5);
+      background: rgba(239,68,68,0.12);
+      color: #fecaca;
+      font-size: 13px;
+      display:none;
+    }
+
+    .footer{
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    table th, table td{
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="topbar">
+      <div class="title">
+        <h1>Written Answer Auto Evaluation</h1>
+        <p>Semantic similarity scoring using SBERT + Cosine Similarity (Free Model)</p>
+      </div>
+      <div class="badge">API: http://127.0.0.1:8000</div>
+    </div>
+
+    <div class="grid">
+
+      <!-- Left -->
+      <div class="card">
+        <h2>🧠 Model Answer</h2>
+        <label>Admin / Correct Answer</label>
+        <textarea id="modelAnswer" placeholder="Enter the model answer here..."></textarea>
+
+        <div class="hint">
+          Tip: Model answer should be correct and complete. System will check meaning (not exact words).
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="card">
+        <h2>✍️ Student Answer</h2>
+        <div class="card" style="margin-bottom: 16px; padding:14px; background:#0b1220; border-radius:16px; border:1px solid #233044;">
+          <h2 style="margin:0 0 10px 0;">Question Bank</h2>
+          <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <select id="questionSelect" onchange="onQuestionSelectChange()" style="flex: 1; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: #0b1220; color: var(--text);">
+              <option value="">Select a question...</option>
+            </select>
+            <button class="btn-secondary" onclick="loadQuestions()">Refresh</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <div>
+              <label style="margin-top:0;">Question ID</label>
+              <input type="number" id="questionId" placeholder="Enter question ID" style="width: 100%; padding: 10px; border-radius: 12px; border: 1px solid var(--border); background: #0b1220; color: var(--text);">
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+              <button class="btn-secondary" onclick="loadQuestionById()" style="width: 100%;">Load by ID</button>
+            </div>
+          </div>
+        </div>
+
+        <label>Student submitted answer</label>
+        <textarea id="studentAnswer" placeholder="Enter the student answer here..."></textarea>
+
+        <div class="controls">
+          <div class="threshold">
+            <span style="color:var(--muted); font-size:13px;">Pass Threshold</span>
+            <input type="number" id="threshold" value="0.70" step="0.01" min="0" max="1">
+          </div>
+
+          <div class="btns">
+            <button class="btn-secondary" onclick="fillExample()">Fill Example</button>
+            <button class="btn-primary" id="evalBtn" onclick="evaluateAnswer()">Evaluate</button>
+          </div>
+        </div>
+
+        <div class="error" id="errorBox"></div>
+
+        <!-- RESULT -->
+        <div class="result" id="resultBox" style="display:none;">
+          <div class="resultHeader">
+            <h2 style="margin:0;">📊 Result</h2>
+            <div class="statusPill" id="statusPill">STATUS</div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric">
+              <div class="k">Similarity Score</div>
+              <div class="v" id="scoreText">0.00</div>
+            </div>
+
+            <div class="metric">
+              <div class="k">Similarity Percentage</div>
+              <div class="v" id="percentText">0%</div>
+            </div>
+          </div>
+
+          <div class="progressWrap">
+            <div class="k" style="color:var(--muted); font-size:12px; margin-bottom:8px;">
+              Similarity Progress
+            </div>
+            <div class="bar">
+              <div id="progressBar"></div>
+            </div>
+            <div class="hint">
+              PASS if score ≥ threshold. Minor spelling mistakes are handled.
+            </div>
+          </div>
+        </div>
+
+        <!-- HISTORY -->
+        <div class="card" style="margin-top:14px; padding:14px; background:#0b1220; border-radius:16px; border:1px solid #233044;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+            <h3 style="margin:0;">🕒 Last Evaluations</h3>
+            <button class="btn-secondary" onclick="clearHistory()">Clear</button>
+          </div>
+
+          <div style="overflow:auto; margin-top:10px;">
+            <table style="width:100%; border-collapse: collapse; font-size: 13px;">
+              <thead>
+                <tr style="color:#9ca3af; text-align:left;">
+                  <th style="padding:10px; border-bottom:1px solid #233044;">#</th>
+                  <th style="padding:10px; border-bottom:1px solid #233044;">Score</th>
+                  <th style="padding:10px; border-bottom:1px solid #233044;">%</th>
+                  <th style="padding:10px; border-bottom:1px solid #233044;">Threshold</th>
+                  <th style="padding:10px; border-bottom:1px solid #233044;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">
+      Built for interview/project submission • FastAPI + Sentence Transformers
+    </div>
+  </div>
+
+<script>
+const API_BASE_URL = "http://127.0.0.1:8000";
+let history = [];
+let questionBank = [];
+
+function renderHistory(){
+  const body = document.getElementById("historyBody");
+  body.innerHTML = "";
+
+  if(history.length === 0){
+    body.innerHTML = `
+      <tr>
+        <td colspan="5" style="padding:12px; color:#9ca3af;">
+          No evaluations yet.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  history.forEach((h, i) => {
+    const statusColor = h.status === "PASS" ? "#86efac" : "#fca5a5";
+    body.innerHTML += `
+      <tr>
+        <td style="padding:10px; border-bottom:1px solid #1f2a3a;">${i+1}</td>
+        <td style="padding:10px; border-bottom:1px solid #1f2a3a;">${h.score}</td>
+        <td style="padding:10px; border-bottom:1px solid #1f2a3a;">${h.percent}%</td>
+        <td style="padding:10px; border-bottom:1px solid #1f2a3a;">${h.threshold}</td>
+        <td style="padding:10px; border-bottom:1px solid #1f2a3a; font-weight:800; color:${statusColor};">
+          ${h.status}
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function clearHistory(){
+  history = [];
+  renderHistory();
+}
+
+function questionOptionLabel(question){
+  const questionId = question.id == null ? "" : String(question.id);
+  const questionText = String(question.question ?? "").trim();
+  const clippedText = questionText.length > 60 ? `${questionText.slice(0, 57)}...` : questionText;
+  const prefix = questionId ? `${questionId} - ` : "";
+  return `${prefix}${clippedText || "Untitled question"}`;
+}
+
+function normalizeQuestions(payload){
+  if(Array.isArray(payload)){
+    return payload;
+  }
+
+  if(payload && Array.isArray(payload.questions)){
+    return payload.questions;
+  }
+
+  return [];
+}
+
+function renderQuestionOptions(){
+  const select = document.getElementById("questionSelect");
+  select.innerHTML = "";
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = questionBank.length ? "Select a question..." : "No questions available";
+  select.appendChild(defaultOption);
+
+  questionBank.forEach((question) => {
+    const option = document.createElement("option");
+    option.value = question.id == null ? "" : String(question.id);
+    option.textContent = questionOptionLabel(question);
+    select.appendChild(option);
+  });
+}
+
+function applyQuestion(question){
+  const questionId = question?.id;
+  const modelAnswer = typeof question?.model_answer === "string" ? question.model_answer : "";
+
+  if(questionId != null){
+    document.getElementById("questionId").value = String(questionId);
+    document.getElementById("questionSelect").value = String(questionId);
+  }
+
+  if(modelAnswer){
+    document.getElementById("modelAnswer").value = modelAnswer;
+  }
+}
+
+function findQuestionById(questionId){
+  return questionBank.find((question) => Number(question.id) === questionId);
+}
+
+async function loadQuestions(){
+  setError("");
+
+  try{
+    const response = await fetch(`${API_BASE_URL}/questions`);
+    if(!response.ok){
+      const text = await response.text();
+      throw new Error(text || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    questionBank = normalizeQuestions(data).filter((item) => item && typeof item === "object");
+    renderQuestionOptions();
+  } catch(err){
+    setError("Question load error: " + err.message);
+  }
+}
+
+function onQuestionSelectChange(){
+  const selectedId = parseInt(document.getElementById("questionSelect").value, 10);
+  if(Number.isNaN(selectedId)){
+    return;
+  }
+
+  const question = findQuestionById(selectedId);
+  if(question){
+    applyQuestion(question);
+  }
+}
+
+async function loadQuestionById(){
+  setError("");
+
+  const rawId = document.getElementById("questionId").value.trim();
+  if(!rawId){
+    setError("Please enter a question ID.");
+    return;
+  }
+
+  const questionId = parseInt(rawId, 10);
+  if(Number.isNaN(questionId)){
+    setError("Question ID must be a number.");
+    return;
+  }
+
+  if(questionBank.length === 0){
+    await loadQuestions();
+  }
+
+  const question = findQuestionById(questionId);
+  if(!question){
+    setError(`Question ID ${questionId} not found.`);
+    return;
+  }
+
+  applyQuestion(question);
+}
+
+function fillExample(){
+  document.getElementById("modelAnswer").value =
+    "Machine Learning is a subset of Artificial Intelligence that enables systems to learn from data.";
+  document.getElementById("studentAnswer").value =
+    "ML is part of AI which allows machines to learn using data.";
+  document.getElementById("threshold").value = "0.70";
+  document.getElementById("questionSelect").value = "";
+  document.getElementById("questionId").value = "";
+}
+
+function setError(msg){
+  const box = document.getElementById("errorBox");
+  if(!msg){
+    box.style.display = "none";
+    box.innerText = "";
+    return;
+  }
+  box.style.display = "block";
+  box.innerText = msg;
+}
+
+function getSelectedQuestionId(){
+  const rawId = document.getElementById("questionId").value.trim();
+  if(!rawId){
+    return null;
+  }
+
+  const questionId = parseInt(rawId, 10);
+  return Number.isNaN(questionId) ? null : questionId;
+}
+
+renderHistory();
+loadQuestions();
+
+async function evaluateAnswer() {
+  setError("");
+
+  const model_answer = document.getElementById("modelAnswer").value.trim();
+  const student_answer = document.getElementById("studentAnswer").value.trim();
+  const pass_threshold = parseFloat(document.getElementById("threshold").value);
+  const question_id = getSelectedQuestionId();
+
+  if(!model_answer || !student_answer){
+    setError("Please fill both Model Answer and Student Answer.");
+    return;
+  }
+
+  const btn = document.getElementById("evalBtn");
+  btn.classList.add("loading");
+  btn.innerHTML = `<span class="spinner"></span>Evaluating...`;
+
+  try{
+    const response = await fetch(`${API_BASE_URL}/evaluate`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        question_id,
+        model_answer,
+        student_answer,
+        pass_threshold
+      })
+    });
+
+    if(!response.ok){
+      const text = await response.text();
+      throw new Error(text);
+    }
+
+    const data = await response.json();
+
+    // show result box
+    document.getElementById("resultBox").style.display = "grid";
+
+    // set metrics
+    document.getElementById("scoreText").innerText = data.similarity_score;
+    document.getElementById("percentText").innerText = data.similarity_percentage + "%";
+
+    // status pill
+    const pill = document.getElementById("statusPill");
+    pill.classList.remove("pass", "fail");
+
+    if(data.status === "PASS"){
+      pill.innerText = "PASS ✅";
+      pill.classList.add("pass");
+    } else {
+      pill.innerText = "FAIL ❌";
+      pill.classList.add("fail");
+    }
+
+    // progress
+    const p = Math.max(0, Math.min(100, data.similarity_percentage));
+    document.getElementById("progressBar").style.width = p + "%";
+
+    // ✅ history update (correct place)
+    history.unshift({
+      score: data.similarity_score,
+      percent: data.similarity_percentage,
+      status: data.status,
+      threshold: pass_threshold
+    });
+
+    history = history.slice(0, 5);
+    renderHistory();
+
+  } catch(err){
+    setError("API Error: " + err.message);
+  } finally{
+    btn.classList.remove("loading");
+    btn.innerHTML = "Evaluate";
+  }
+}
+</script>
+
+</body>
+</html>
