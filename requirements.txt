@@ -1,5 +1,5 @@
-torch==2.2.2+cpu
 --extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.10.0+cpu
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1
